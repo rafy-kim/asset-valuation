@@ -6,7 +6,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 # import MySQLdb
 # from MySQLdb.cursors import DictCursor
-from draw_plot import draw_plot
+# from draw_plot import draw_plot
 
 ENV_LOAD = load_dotenv()
 
@@ -93,7 +93,7 @@ def get_apt_data(apt_name):
         dataset2 = dict(sorted(data.items()))
         return f"{apt_name} - {PY}평", dataset1, dataset2
 
-        draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
+        # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
     except pymysql.Error as e:
         print("MySQL Error:", e)
