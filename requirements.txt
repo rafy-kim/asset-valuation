@@ -1,5 +1,5 @@
-altair==5.2.0
-mysqlclient==2.2.1
-requests==2.31.0
-streamlit==1.29.0
+altair
+mysqlclient
+requests
+streamlit
 
