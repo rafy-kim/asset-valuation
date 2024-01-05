@@ -5,10 +5,10 @@ from urllib.error import URLError
 
 from get_apt_data import get_apt_data
 
-st.set_page_config(page_title="APT Valuation", page_icon="🏠")
+st.set_page_config(page_title="아파트", page_icon="🏠")
 
-st.markdown("# APT Valuation")
-st.sidebar.header("APT Valuation")
+st.markdown("# 아파트")
+st.sidebar.header("아파트")
 # st.write(
 #     """This demo shows how to use `st.write` to visualize Pandas DataFrames.
 # (Data courtesy of the [UN Data Explorer](http://data.un.org/Explorer.aspx).)"""
