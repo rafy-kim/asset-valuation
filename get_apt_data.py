@@ -1,5 +1,6 @@
 import json
 from dotenv import load_dotenv
+import streamlit as st
 import os
 import pymysql
 from pymysql.cursors import DictCursor
@@ -7,16 +8,30 @@ from pymysql.cursors import DictCursor
 # from MySQLdb.cursors import DictCursor
 from draw_plot import draw_plot
 
-load_dotenv()
+ENV_LOAD = load_dotenv()
 
-# Connect to the database
-connection = pymysql.connect(
-  host=os.getenv("DATABASE_HOST"),
-  user=os.getenv("DATABASE_USERNAME"),
-  password=os.getenv("DATABASE_PASSWORD"),
-  database=os.getenv("DATABASE"),
-  ssl_verify_identity=True,
-)
+if ENV_LOAD:
+    # Connect to the database
+    connection = pymysql.connect(
+      host=os.getenv("DATABASE_HOST"),
+      user=os.getenv("DATABASE_USERNAME"),
+      password=os.getenv("DATABASE_PASSWORD"),
+      database=os.getenv("DATABASE"),
+      ssl_verify_identity=True,
+    )
+else:
+    DB_HOST = st.secrets["DB_HOST"]
+    DB_USER = st.secrets["DB_USER"]
+    DB_PASS = st.secrets["DB_PASS"]
+    DB_PORT = int(st.secrets["DB_PORT"])
+    DB_NAME = st.secrets["DB_NAME"]
+    connection = pymysql.connect(
+        host=st.secrets["DATABASE_HOST"],
+        user=st.secrets["DATABASE_USERNAME"],
+        password=st.secrets["DATABASE_PASSWORD"],
+        database=st.secrets["DATABASE"],
+        ssl_verify_identity=True,
+    )
 
 
 def get_apt_data(apt_name):
