@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from urllib.error import URLError
-import matplotlib.pyplot as plt
 
 from get_apt_data import get_apt_data
 
