@@ -42,7 +42,7 @@ def load_data(dataset1, dataset2):
     return df3
 
 try:
-    apt = st.selectbox("Choose a APT", ["타워팰리스1차", "디에이치아너힐즈", "마포래미안푸르지오", "헬리오시티", "잠실엘스"])
+    apt = st.selectbox("Choose a APT", ["반포자이", "파크리오", "리센츠", "타워팰리스1차", "디에이치아너힐즈", "마포래미안푸르지오", "헬리오시티", "잠실엘스"])
     if not apt:
         st.error("Please select a APT.")
     else:

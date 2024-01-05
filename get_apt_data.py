@@ -34,7 +34,7 @@ def get_apt_data(apt_name):
         cur = connection.cursor(cursor=DictCursor)
         ####
         # apt_name = "헬리오시티"
-        sql = "SELECT * FROM APTInfo WHERE name = %s"
+        sql = "SELECT * FROM APTInfo WHERE name = %s ORDER BY id DESC LIMIT 1"
         cur.execute(sql, (apt_name,))
         res = cur.fetchone()
         ####
