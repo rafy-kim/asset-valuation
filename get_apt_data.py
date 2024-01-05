@@ -1,25 +1,27 @@
 import json
 from dotenv import load_dotenv
 import os
-import MySQLdb
-from MySQLdb.cursors import DictCursor
+import pymysql
+from pymysql.cursors import DictCursor
+# import MySQLdb
+# from MySQLdb.cursors import DictCursor
 from draw_plot import draw_plot
 
 load_dotenv()
 
 # Connect to the database
-connection = MySQLdb.connect(
+connection = pymysql.connect(
   host=os.getenv("DATABASE_HOST"),
   user=os.getenv("DATABASE_USERNAME"),
-  passwd=os.getenv("DATABASE_PASSWORD"),
-  db=os.getenv("DATABASE"),
-  autocommit=True,
+  password=os.getenv("DATABASE_PASSWORD"),
+  database=os.getenv("DATABASE"),
+  ssl_verify_identity=True,
 )
 
 
 def get_apt_data(apt_name):
     try:
-        cur = connection.cursor(DictCursor)
+        cur = connection.cursor(cursor=DictCursor)
         ####
         # apt_name = "헬리오시티"
         sql = "SELECT * FROM APTInfo WHERE name = %s"
@@ -78,7 +80,7 @@ def get_apt_data(apt_name):
 
         draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
-    except MySQLdb.Error as e:
+    except pymysql.Error as e:
         print("MySQL Error:", e)
         return [], []
 
