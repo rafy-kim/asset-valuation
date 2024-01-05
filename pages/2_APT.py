@@ -3,7 +3,7 @@ import pandas as pd
 import altair as alt
 from urllib.error import URLError
 
-from get_apt_data import get_apt_data
+from get_apt_data import get_apt_data, get_apt_list
 
 st.set_page_config(page_title="아파트", page_icon="🏠")
 
@@ -49,7 +49,7 @@ def load_data(dataset1, dataset2):
     return df3
 
 try:
-    apt = st.selectbox("Choose a APT", ["반포자이", "파크리오", "리센츠", "타워팰리스1차", "디에이치아너힐즈", "마포래미안푸르지오", "헬리오시티", "잠실엘스"])
+    apt = st.selectbox("Choose a APT", get_apt_list())
     if not apt:
         st.error("Please select a APT.")
     else:
