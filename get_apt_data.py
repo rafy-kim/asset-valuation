@@ -20,11 +20,6 @@ if ENV_LOAD:
       ssl_verify_identity=True,
     )
 else:
-    DB_HOST = st.secrets["DB_HOST"]
-    DB_USER = st.secrets["DB_USER"]
-    DB_PASS = st.secrets["DB_PASS"]
-    DB_PORT = int(st.secrets["DB_PORT"])
-    DB_NAME = st.secrets["DB_NAME"]
     connection = pymysql.connect(
         host=st.secrets["DATABASE_HOST"],
         user=st.secrets["DATABASE_USERNAME"],
