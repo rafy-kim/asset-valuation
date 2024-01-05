@@ -57,7 +57,7 @@ def get_apt_data(apt_name):
         for y in years:
             YEAR = str(y)
             for pt in price_trend[YEAR]:
-                data[pt['date']] = round(pt['avg'], 2)
+                data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
                 # print(pt['date'], pt['avg'])
         dataset1 = dict(sorted(data.items()))
 
@@ -70,7 +70,7 @@ def get_apt_data(apt_name):
         for y in years:
             YEAR = str(y)
             for pt in price_trend[YEAR]:
-                data[pt['date']] = round(pt['avg'], 2)
+                data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
                 # print(pt['date'], pt['avg'])
         dataset2 = dict(sorted(data.items()))
 
@@ -83,7 +83,7 @@ def get_apt_data(apt_name):
         for y in years:
             YEAR = str(y)
             for pt in price_trend[YEAR]:
-                data[pt['date']] = round(pt['avg'], 2)
+                data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
                 # print(pt['date'], pt['avg'])
         dataset2 = dict(sorted(data.items()))
         return f"{apt_name} - {PY}평", dataset1, dataset2

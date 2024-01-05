@@ -18,8 +18,14 @@ st.sidebar.header("아파트")
 @st.cache_data
 def load_data(dataset1, dataset2):
     # 데이터프레임 생성
-    df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', '매매가'])
-    df2 = pd.DataFrame(list(dataset2.items()), columns=['Date', '월세'])
+    # df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', ['매매가', '매매 거래량']])
+    # df2 = pd.DataFrame(list(dataset2.items()), columns=['Date', ['월세', '월세 거래량']])
+    df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', 'Data'])
+    df1[['매매가', '매매 거래량']] = pd.DataFrame(df1['Data'].tolist(), index=df1.index)
+    df1.drop('Data', axis=1, inplace=True)
+    df2 = pd.DataFrame(list(dataset2.items()), columns=['Date', 'Data'])
+    df2[['월세', '월세 거래량']] = pd.DataFrame(df2['Data'].tolist(), index=df2.index)
+    df2.drop('Data', axis=1, inplace=True)
 
     # 데이터프레임을 날짜로 정렬
     df1['Date'] = pd.to_datetime(df1['Date'], format='%Y%m')
@@ -35,6 +41,7 @@ def load_data(dataset1, dataset2):
     # 결측치를 이전 달 값으로 채워넣기
     df3['매매가'] = df3['매매가'].astype(float).ffill()
     df3['월세'] = df3['월세'].astype(float).ffill()
+    df3 = df3.fillna(0)
 
     # 'PER' 계산
     df3['PER'] = df3['매매가'] / (df3['월세'] * 12)
