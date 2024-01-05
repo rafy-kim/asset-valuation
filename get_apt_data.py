@@ -92,7 +92,7 @@ def get_apt_data(apt_name):
 
     except pymysql.Error as e:
         print("MySQL Error:", e)
-        return [], []
+        return '', [], []
 
     finally:
         pass
