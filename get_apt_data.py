@@ -119,7 +119,7 @@ def get_apt_list():
 
     except pymysql.Error as e:
         print("MySQL Error:", e)
-        return '', [], []
+        return []
 
     finally:
         pass
