@@ -73,12 +73,12 @@ try:
         # st.altair_chart(chart, use_container_width=True)
 
         # streamlit 앱 시작
-        title, dataset1, dataset2 = get_apt_data(apt)
+        apt_name, apt_PY, dataset1, dataset2 = get_apt_data(apt)
         df3 = load_data(dataset1, dataset2)
 
         # 차트 그리기
         # Line Chart
-        st.write(f"### {title}")
+        st.write(f"### {apt_name} - {apt_PY}평")
         line_chart1 = alt.Chart(df3).mark_line(point=True).encode(
             x=alt.X("Date:T", title="Date"),
             y=alt.Y("매매가:Q", title="매매가"),

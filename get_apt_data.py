@@ -86,13 +86,13 @@ def get_apt_data(apt_name):
                 data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
                 # print(pt['date'], pt['avg'])
         dataset2 = dict(sorted(data.items()))
-        return f"{apt_name} - {PY}평", dataset1, dataset2
+        return apt_name, PY, dataset1, dataset2
 
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
     except pymysql.Error as e:
         print("MySQL Error:", e)
-        return '', [], []
+        return '', 0, [], []
 
     finally:
         pass
