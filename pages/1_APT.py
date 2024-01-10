@@ -76,6 +76,20 @@ try:
         apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
         df = load_data(dataset1, dataset3)
 
+        # class_data = [5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 35, 37, 39, 41, 43, 45, 47, 49, 51, 54, 56,
+        #               58, 60, 62, 64, 66, 68, 70, 72, 74, 77, 79, 81, 83, 85, 88, 90, 92]
+        # # 결과 출력
+        # # print(time.time() - stime)
+        #
+        # start_class_num, end_class_num = st.select_slider(
+        #     '문제 출제 범위를 정해주세요',
+        #     options=class_data,
+        #     value=(min(class_data), max(class_data)))
+        # # st.write('You selected wavelengths between', start, 'and', end)
+        # # TODO: 현재 푼 문제 수 / 출제 가능한 문제 수 표시
+        # cur = conn.cursor()
+        # sql = f"SELECT COUNT(*) FROM studyEnglish WHERE class_num >= {start_class_num} AND class_num <= {end_class_num}"
+
         # 차트 그리기
         # Line Chart
         st.write(f"### {apt_name} - {apt_PY}평")
