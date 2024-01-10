@@ -18,8 +18,6 @@ st.sidebar.header("아파트")
 @st.cache_data
 def load_data(dataset1, dataset2):
     # 데이터프레임 생성
-    # df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', ['매매가', '매매 거래량']])
-    # df2 = pd.DataFrame(list(dataset2.items()), columns=['Date', ['월세', '월세 거래량']])
     df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', 'Data'])
     df1[['매매가', '매매 거래량']] = pd.DataFrame(df1['Data'].tolist(), index=df1.index)
     df1.drop('Data', axis=1, inplace=True)
@@ -29,7 +27,9 @@ def load_data(dataset1, dataset2):
 
     # 데이터프레임을 날짜로 정렬
     df1['Date'] = pd.to_datetime(df1['Date'], format='%Y%m')
+    df1['Date'] = df1['Date'].dt.date
     df2['Date'] = pd.to_datetime(df2['Date'], format='%Y%m')
+    df2['Date'] = df2['Date'].dt.date
     df1 = df1.sort_values(by='Date')
     df2 = df2.sort_values(by='Date')
 
@@ -53,42 +53,15 @@ try:
     if not apt:
         st.error("Please select a APT.")
     else:
-        # data = df.loc[countries]
-        # data /= 1000000.0
-        # st.write("### Gross Agricultural Production ($B)", data.sort_index())
-        #
-        # data = data.T.reset_index()
-        # data = pd.melt(data, id_vars=["index"]).rename(
-        #     columns={"index": "year", "value": "Gross Agricultural Product ($B)"}
-        # )
-        # chart = (
-        #     alt.Chart(data)
-        #     .mark_area(opacity=0.3)
-        #     .encode(
-        #         x="year:T",
-        #         y=alt.Y("Gross Agricultural Product ($B):Q", stack=None),
-        #         color="Region:N",
-        #     )
-        # )
-        # st.altair_chart(chart, use_container_width=True)
-
         # streamlit 앱 시작
         apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
         df = load_data(dataset1, dataset3)
 
-        # class_data = [5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 35, 37, 39, 41, 43, 45, 47, 49, 51, 54, 56,
-        #               58, 60, 62, 64, 66, 68, 70, 72, 74, 77, 79, 81, 83, 85, 88, 90, 92]
-        # # 결과 출력
-        # # print(time.time() - stime)
-        #
-        # start_class_num, end_class_num = st.select_slider(
-        #     '문제 출제 범위를 정해주세요',
-        #     options=class_data,
-        #     value=(min(class_data), max(class_data)))
-        # # st.write('You selected wavelengths between', start, 'and', end)
-        # # TODO: 현재 푼 문제 수 / 출제 가능한 문제 수 표시
-        # cur = conn.cursor()
-        # sql = f"SELECT COUNT(*) FROM studyEnglish WHERE class_num >= {start_class_num} AND class_num <= {end_class_num}"
+        start_date, end_date = st.sidebar.select_slider(
+            '조회하고 싶은 기간을 선택하세요',
+            options=df["Date"].tolist(),
+            value=(df["Date"].min(), df["Date"].max()))
+        df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
 
         # 차트 그리기
         # Line Chart
@@ -119,7 +92,6 @@ try:
         st.altair_chart(final_chart, use_container_width=True)
 
         df = df.set_index('Date')
-        df.index = df.index.date
 
         # 최근 6개월 매매가 평균
         st.write(f"- 최근 6개월 매매가 평균: {round(df[-6:].mean()['매매가']/10000, 1)}억원")
