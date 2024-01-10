@@ -18,8 +18,6 @@ st.sidebar.header("아파트 비교")
 @st.cache_data
 def load_data(dataset1, dataset2, dataset3):
     # 데이터프레임 생성
-    # df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', ['매매가', '매매 거래량']])
-    # df2 = pd.DataFrame(list(dataset2.items()), columns=['Date', ['월세', '월세 거래량']])
     df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', 'Data'])
     df1[['매매가', '매매 거래량']] = pd.DataFrame(df1['Data'].tolist(), index=df1.index)
     df1.drop('Data', axis=1, inplace=True)
@@ -32,8 +30,11 @@ def load_data(dataset1, dataset2, dataset3):
 
     # 데이터프레임을 날짜로 정렬
     df1['Date'] = pd.to_datetime(df1['Date'], format='%Y%m')
+    df1['Date'] = df1['Date'].dt.date
     df2['Date'] = pd.to_datetime(df2['Date'], format='%Y%m')
+    df2['Date'] = df2['Date'].dt.date
     df3['Date'] = pd.to_datetime(df3['Date'], format='%Y%m')
+    df3['Date'] = df3['Date'].dt.date
     df1 = df1.sort_values(by='Date')
     df2 = df2.sort_values(by='Date')
     df3 = df3.sort_values(by='Date')
@@ -62,25 +63,6 @@ try:
     if not apts:
         st.error("Please select a APT.")
     else:
-        # data = df.loc[countries]
-        # data /= 1000000.0
-        # st.write("### Gross Agricultural Production ($B)", data.sort_index())
-        #
-        # data = data.T.reset_index()
-        # data = pd.melt(data, id_vars=["index"]).rename(
-        #     columns={"index": "year", "value": "Gross Agricultural Product ($B)"}
-        # )
-        # chart = (
-        #     alt.Chart(data)
-        #     .mark_area(opacity=0.3)
-        #     .encode(
-        #         x="year:T",
-        #         y=alt.Y("Gross Agricultural Product ($B):Q", stack=None),
-        #         color="Region:N",
-        #     )
-        # )
-        # st.altair_chart(chart, use_container_width=True)
-
         data = []
         for apt in apts:
             # streamlit 앱 시작
@@ -88,13 +70,41 @@ try:
             df = load_data(dataset1, dataset2, dataset3)
             data.append({apt_name: df})
 
-        print(data)
+        date_list = []
+        date_min, date_max = None, None
+        for d in data:
+            apt_df = list(d.values())[0]
+            if not date_list:
+                date_list = apt_df["Date"].tolist()
+            else:
+                date_list += apt_df["Date"].tolist()
+                date_list = list(set(date_list))
+                date_list.sort()
+            if not date_min:
+                date_min = apt_df["Date"].min()
+            else:
+                date_min = apt_df["Date"].min() if date_min > apt_df["Date"].min() else date_min
+            if not date_max:
+                date_max = apt_df["Date"].max()
+            else:
+                date_max = apt_df["Date"].max() if date_max < apt_df["Date"].max() else date_max
+        print(date_list)
+        print(date_min, date_max)
+        start_date, end_date = st.sidebar.select_slider(
+            '조회하고 싶은 기간을 선택하세요',
+            options=date_list,
+            value=(date_min, date_max))
+        # df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
+
+
+        # print(data)
         # 차트 그리기
         st.write(f"### 매매가")
         charts = []
         for d in data:
             apt_name = list(d.keys())[0]
             apt_df = list(d.values())[0]
+            apt_df = apt_df[(apt_df['Date'] >= start_date) & (apt_df['Date'] <= end_date)]
             apt_df['단지명'] = apt_name  # 각 아파트에 대한 데이터프레임에 단지명 추가
             line_chart = alt.Chart(apt_df).mark_line(point=True).encode(
                 x=alt.X("Date:T", title="Date"),
@@ -112,6 +122,7 @@ try:
         for d in data:
             apt_name = list(d.keys())[0]
             apt_df = list(d.values())[0]
+            apt_df = apt_df[(apt_df['Date'] >= start_date) & (apt_df['Date'] <= end_date)]
             apt_df['단지명'] = apt_name  # 각 아파트에 대한 데이터프레임에 단지명 추가
             line_chart = alt.Chart(apt_df).mark_line(point=True).encode(
                 x=alt.X("Date:T", title="Date"),
@@ -129,6 +140,7 @@ try:
         for d in data:
             apt_name = list(d.keys())[0]
             apt_df = list(d.values())[0]
+            apt_df = apt_df[(apt_df['Date'] >= start_date) & (apt_df['Date'] <= end_date)]
             apt_df['단지명'] = apt_name  # 각 아파트에 대한 데이터프레임에 단지명 추가
             line_chart = alt.Chart(apt_df).mark_line(point=True).encode(
                 x=alt.X("Date:T", title="Date"),
@@ -146,6 +158,7 @@ try:
         for d in data:
             apt_name = list(d.keys())[0]
             apt_df = list(d.values())[0]
+            apt_df = apt_df[(apt_df['Date'] >= start_date) & (apt_df['Date'] <= end_date)]
             apt_df['단지명'] = apt_name  # 각 아파트에 대한 데이터프레임에 단지명 추가
             line_chart = alt.Chart(apt_df).mark_line(point=True).encode(
                 x=alt.X("Date:T", title="Date"),
