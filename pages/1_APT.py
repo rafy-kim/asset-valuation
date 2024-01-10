@@ -73,26 +73,26 @@ try:
         # st.altair_chart(chart, use_container_width=True)
 
         # streamlit 앱 시작
-        apt_name, apt_PY, dataset1, dataset2 = get_apt_data(apt)
-        df3 = load_data(dataset1, dataset2)
+        apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
+        df = load_data(dataset1, dataset3)
 
         # 차트 그리기
         # Line Chart
         st.write(f"### {apt_name} - {apt_PY}평")
-        line_chart1 = alt.Chart(df3).mark_line(point=True).encode(
+        line_chart1 = alt.Chart(df).mark_line(point=True).encode(
             x=alt.X("Date:T", title="Date"),
             y=alt.Y("매매가:Q", title="매매가"),
             color=alt.value('red'),  # 첫 번째 데이터셋 색상
         )
 
-        line_chart2 = alt.Chart(df3).mark_line(point=True).encode(
+        line_chart2 = alt.Chart(df).mark_line(point=True).encode(
             x=alt.X("Date:T", title="Date"),
             y=alt.Y("PER:Q", title="PER"),
             color=alt.value('blue'),  # 두 번째 데이터셋 색상
         )
 
         # 수평선 추가
-        hline1 = alt.Chart(df3).mark_rule(color='orange', strokeWidth=1).encode(
+        hline1 = alt.Chart(df).mark_rule(color='orange', strokeWidth=1).encode(
             y="average(PER)",
         )
         hline2 = alt.Chart(pd.DataFrame({'y': [35]})).mark_rule(color='yellow', strokeWidth=1).encode(y='y:Q')
@@ -104,23 +104,23 @@ try:
         final_chart = alt.layer(line_chart1, base_chart).resolve_scale(y='independent')
         st.altair_chart(final_chart, use_container_width=True)
 
-        df3 = df3.set_index('Date')
-        df3.index = df3.index.date
+        df = df.set_index('Date')
+        df.index = df.index.date
 
         # 최근 6개월 매매가 평균
-        st.write(f"- 최근 6개월 매매가 평균: {round(df3[-6:].mean()['매매가']/10000, 1)}억원")
+        st.write(f"- 최근 6개월 매매가 평균: {round(df[-6:].mean()['매매가']/10000, 1)}억원")
 
         # 최근 6개월 월세 평균
-        st.write(f"- 최근 6개월 월세 평균: {int(df3[-6:].mean()['월세'])}만원")
+        st.write(f"- 최근 6개월 월세 평균: {int(df[-6:].mean()['월세'])}만원")
 
         # 최근 월세 시세를 통해 추정한 기대 매매가
-        s_val = df3[-6:].mean()['월세'] * 12 * 30
-        e_val = df3[-6:].mean()['월세'] * 12 * 35
+        s_val = df[-6:].mean()['월세'] * 12 * 30
+        e_val = df[-6:].mean()['월세'] * 12 * 35
         st.write(f"- 최근 월세 시세를 통해 추정한 기대 매매가: :blue[{round(s_val/10000, 1)}억원] ~ :blue[{round(e_val/10000, 1)}억원]")
 
         st.divider()
 
-        st.dataframe(df3, use_container_width=True)
+        st.dataframe(df, use_container_width=True)
 
 
 
