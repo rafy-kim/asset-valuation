@@ -5,7 +5,7 @@ from urllib.error import URLError
 
 from get_apt_data import get_apt_data, get_apt_list
 
-st.set_page_config(page_title="아파트", page_icon="🏠")
+# st.set_page_config(page_title="아파트", page_icon="🏠")
 
 st.markdown("# 아파트")
 st.sidebar.header("아파트")

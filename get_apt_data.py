@@ -7,51 +7,57 @@ from pymysql.cursors import DictCursor
 # import MySQLdb
 # from MySQLdb.cursors import DictCursor
 # from draw_plot import draw_plot
+conn = st.connection('mysql', type='sql')
 
-ENV_LOAD = load_dotenv()
-
-if ENV_LOAD:
-    # Connect to the database
-    connection = pymysql.connect(
-      host=os.getenv("DATABASE_HOST"),
-      user=os.getenv("DATABASE_USERNAME"),
-      password=os.getenv("DATABASE_PASSWORD"),
-      database=os.getenv("DATABASE"),
-      ssl_verify_identity=True,
-    )
-else:
-    connection = pymysql.connect(
-        host=st.secrets["DATABASE_HOST"],
-        user=st.secrets["DATABASE_USERNAME"],
-        password=st.secrets["DATABASE_PASSWORD"],
-        database=st.secrets["DATABASE"],
-        ssl_verify_identity=True,
-    )
+# ENV_LOAD = load_dotenv()
+#
+# if ENV_LOAD:
+#     conn = st.connection('mysql', type='sql')
+#
+#     # # Connect to the database
+#     # connection = pymysql.connect(
+#     #   host=os.getenv("DATABASE_HOST"),
+#     #   user=os.getenv("DATABASE_USERNAME"),
+#     #   password=os.getenv("DATABASE_PASSWORD"),
+#     #   database=os.getenv("DATABASE"),
+#     #   ssl_verify_identity=True,
+#     # )
+# else:
+#     connection = pymysql.connect(
+#         host=st.secrets["DATABASE_HOST"],
+#         user=st.secrets["DATABASE_USERNAME"],
+#         password=st.secrets["DATABASE_PASSWORD"],
+#         database=st.secrets["DATABASE"],
+#         ssl_verify_identity=True,
+#     )
 
 
 def get_apt_data(apt_name):
     try:
-        cur = connection.cursor(cursor=DictCursor)
+        # cur = connection.cursor(cursor=DictCursor)
         ####
         # apt_name = "헬리오시티"
-        sql = "SELECT * FROM APTInfo WHERE name = %s ORDER BY id DESC LIMIT 1"
-        cur.execute(sql, (apt_name,))
-        res = cur.fetchone()
+        # sql = "SELECT * FROM APTInfo WHERE name = %s ORDER BY id DESC LIMIT 1"
+        sql = "SELECT * FROM APTInfo WHERE name = :name ORDER BY id DESC LIMIT 1"
+        res = conn.query(sql, ttl=600, params={"name": apt_name})
+        # cur.execute(sql, (apt_name,))
+        # res = cur.fetchone()
         ####
-        PY = res['PY']
-        price_trend = json.loads(res['price_trend'])
+        PY = res['PY'][0]
+        # print(res['price_trend'][0])
+        price_trend = json.loads(res['price_trend'][0])
         start_year = int(min(price_trend.keys()))
         end_year = int(max(price_trend.keys())) + 1
         ####
 
         # 1은 매매, 2는 전세, 3은 월세
         DEAL_TYPE = '1'
-        sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
-        cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
-        res = cur.fetchone()
-        print(res['name'], res['PY'], res['DEAL_TYPE'])
-
-        price_trend = json.loads(res['price_trend'])
+        # sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
+        # cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
+        # res = cur.fetchone()
+        sql = "SELECT * FROM APTInfo WHERE name = :name AND PY = :py AND DEAL_TYPE = :deal_type"
+        res = conn.query(sql, ttl=600, params={"name": apt_name, "py": PY, "deal_type": DEAL_TYPE})
+        price_trend = json.loads(res['price_trend'][0])
         years = range(start_year, end_year)
         data = {}
         for y in years:
@@ -62,10 +68,12 @@ def get_apt_data(apt_name):
         dataset1 = dict(sorted(data.items()))
 
         DEAL_TYPE = '2'
-        sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
-        cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
-        res = cur.fetchone()
-        price_trend = json.loads(res['price_trend'])
+        # sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
+        # cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
+        # res = cur.fetchone()
+        sql = "SELECT * FROM APTInfo WHERE name = :name AND PY = :py AND DEAL_TYPE = :deal_type"
+        res = conn.query(sql, ttl=600, params={"name": apt_name, "py": PY, "deal_type": DEAL_TYPE})
+        price_trend = json.loads(res['price_trend'][0])
         data = {}
         for y in years:
             YEAR = str(y)
@@ -75,10 +83,12 @@ def get_apt_data(apt_name):
         dataset2 = dict(sorted(data.items()))
 
         DEAL_TYPE = '3'
-        sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
-        cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
-        res = cur.fetchone()
-        price_trend = json.loads(res['price_trend'])
+        # sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
+        # cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
+        # res = cur.fetchone()
+        sql = "SELECT * FROM APTInfo WHERE name = :name AND PY = :py AND DEAL_TYPE = :deal_type"
+        res = conn.query(sql, ttl=600, params={"name": apt_name, "py": PY, "deal_type": DEAL_TYPE})
+        price_trend = json.loads(res['price_trend'][0])
         data = {}
         for y in years:
             YEAR = str(y)
@@ -105,15 +115,17 @@ def get_apt_data(apt_name):
 # TODO: sqlalchemy로 SQL 부분 정리하기
 def get_apt_list():
     try:
-        cur = connection.cursor()
+        # cur = connection.cursor()
         ####
         # apt_name = "헬리오시티"
         sql = "SELECT DISTINCT name FROM APTInfo ORDER BY name ASC"
-        cur.execute(sql)
-        sql_result = cur.fetchall()
-        cleaned_list = [item[0] for item in sql_result]
-        print(cleaned_list)
-        return cleaned_list
+        # cur.execute(sql)
+        # sql_result = cur.fetchall()
+        sql_result = conn.query(sql, ttl=600)
+        apt_names = sql_result['name'].tolist()
+        # cleaned_list = [item[0] for item in sql_result]
+        # print(cleaned_list)
+        return apt_names
 
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
