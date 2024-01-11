@@ -44,7 +44,7 @@ def get_apt_data(apt_name):
         # res = cur.fetchone()
         ####
         PY = res['PY'][0]
-        # print(res['price_trend'][0])
+        print(res['price_trend'][0])
         price_trend = json.loads(res['price_trend'][0])
         start_year = int(min(price_trend.keys()))
         end_year = int(max(price_trend.keys())) + 1
@@ -124,7 +124,7 @@ def get_apt_list():
         sql_result = conn.query(sql, ttl=600)
         apt_names = sql_result['name'].tolist()
         # cleaned_list = [item[0] for item in sql_result]
-        # print(cleaned_list)
+        print(apt_names)
         return apt_names
 
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
