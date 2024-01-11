@@ -196,6 +196,7 @@ try:
             apt_name = list(d.keys())[0]
             st.write(f"### {apt_name}")
             apt_df = list(d.values())[0]
+            apt_df = apt_df.set_index('Date')
             st.dataframe(apt_df, use_container_width=True)
 
 
