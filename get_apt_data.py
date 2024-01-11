@@ -2,8 +2,8 @@ import json
 from dotenv import load_dotenv
 import streamlit as st
 import os
-import pymysql
-from pymysql.cursors import DictCursor
+# import pymysql
+# from pymysql.cursors import DictCursor
 # import MySQLdb
 # from MySQLdb.cursors import DictCursor
 # from draw_plot import draw_plot
