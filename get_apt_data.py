@@ -114,7 +114,6 @@ def get_apt_list():
         cleaned_list = [item[0] for item in sql_result]
         print(cleaned_list)
         return cleaned_list
-
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
     except pymysql.Error as e:
