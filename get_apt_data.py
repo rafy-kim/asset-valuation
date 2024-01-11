@@ -1,35 +1,69 @@
 import json
 from dotenv import load_dotenv
 import streamlit as st
+from sqlalchemy import create_engine
 import os
 # import pymysql
 # from pymysql.cursors import DictCursor
 # import MySQLdb
 # from MySQLdb.cursors import DictCursor
 # from draw_plot import draw_plot
-conn = st.connection('mysql', type='sql')
+ENV_LOAD = load_dotenv()
 
-# ENV_LOAD = load_dotenv()
-#
-# if ENV_LOAD:
-#     conn = st.connection('mysql', type='sql')
-#
-#     # # Connect to the database
-#     # connection = pymysql.connect(
-#     #   host=os.getenv("DATABASE_HOST"),
-#     #   user=os.getenv("DATABASE_USERNAME"),
-#     #   password=os.getenv("DATABASE_PASSWORD"),
-#     #   database=os.getenv("DATABASE"),
-#     #   ssl_verify_identity=True,
-#     # )
-# else:
-#     connection = pymysql.connect(
-#         host=st.secrets["DATABASE_HOST"],
-#         user=st.secrets["DATABASE_USERNAME"],
-#         password=st.secrets["DATABASE_PASSWORD"],
-#         database=st.secrets["DATABASE"],
-#         ssl_verify_identity=True,
-#     )
+
+# st.connect를 사용하여 연결
+@st.cache(allow_output_mutation=True)
+def get_connection():
+    engine = create_engine(db_url, connect_args=ssl_args)
+    connection = engine.connect()
+    return connection
+
+
+if ENV_LOAD:
+    conn = st.connection('mysql', type='sql')
+
+    # # Connect to the database
+    # connection = pymysql.connect(
+    #   host=os.getenv("DATABASE_HOST"),
+    #   user=os.getenv("DATABASE_USERNAME"),
+    #   password=os.getenv("DATABASE_PASSWORD"),
+    #   database=os.getenv("DATABASE"),
+    #   ssl_verify_identity=True,
+    # )
+else:
+    # MySQL 연결 정보
+    db_user = st.secrets["username"]
+    db_password = st.secrets["password"]
+    db_host = st.secrets["host"]
+    db_port = st.secrets["port"]
+    db_name = st.secrets["database"]
+
+    # SSL 옵션 설정
+    ssl_args = {
+        "ssl_ca": "path/to/ca.pem",
+        "ssl_cert": "path/to/client-cert.pem",
+        "ssl_key": "path/to/client-key.pem",
+    }
+
+    # MySQL 연결 URL 생성
+    db_url = f"mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+
+
+    # 연결 가져오기
+    conn = get_connection()
+
+    #
+    # db_url = "mysql://username:password@hostname:port/database"
+    # engine = create_engine(db_url, connect_args={
+    #     "ssl": {"key": "/path/to/client-key.pem", "cert": "/path/to/client-cert.pem", "ca": "/path/to/ca-cert.pem"}})
+    #
+    # connection = pymysql.connect(
+    #     host=st.secrets["DATABASE_HOST"],
+    #     user=st.secrets["DATABASE_USERNAME"],
+    #     password=st.secrets["DATABASE_PASSWORD"],
+    #     database=st.secrets["DATABASE"],
+    #     ssl_verify_identity=True,
+    # )
 
 
 def get_apt_data(apt_name):
