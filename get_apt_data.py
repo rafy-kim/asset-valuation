@@ -114,29 +114,29 @@ def get_apt_data(apt_name):
 
 # TODO: sqlalchemy로 SQL 부분 정리하기
 def get_apt_list():
-    try:
-        # cur = connection.cursor()
-        ####
-        # apt_name = "헬리오시티"
-        sql = "SELECT DISTINCT name FROM APTInfo ORDER BY name ASC"
-        # cur.execute(sql)
-        # sql_result = cur.fetchall()
-        sql_result = conn.query(sql, ttl=600)
-        apt_names = sql_result['name'].tolist()
-        # cleaned_list = [item[0] for item in sql_result]
-        print(apt_names)
-        return apt_names
+    # try:
+    # cur = connection.cursor()
+    ####
+    # apt_name = "헬리오시티"
+    sql = "SELECT DISTINCT name FROM APTInfo ORDER BY name ASC"
+    # cur.execute(sql)
+    # sql_result = cur.fetchall()
+    sql_result = conn.query(sql, ttl=600)
+    apt_names = sql_result['name'].tolist()
+    # cleaned_list = [item[0] for item in sql_result]
+    print(apt_names)
+    return apt_names
 
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
-    except:
-        print("MySQL Error:")
-        return []
-
-    finally:
-        pass
-        # Close the cursor and connection
-        # TODO: 주석 해제 필요
-        # cur.close()
-        # connection.close()
+    # except:
+    #     print("MySQL Error:")
+    #     return []
+    #
+    # finally:
+    #     pass
+    #     # Close the cursor and connection
+    #     # TODO: 주석 해제 필요
+    #     # cur.close()
+    #     # connection.close()
 
