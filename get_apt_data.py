@@ -40,17 +40,14 @@ else:
 
     # SSL 옵션 설정
     ssl_args = {
-        "ssl_ca": "path/to/ca.pem",
-        "ssl_cert": "path/to/client-cert.pem",
-        "ssl_key": "path/to/client-key.pem",
+        "ssl_verify_identity": True,
     }
-
     # MySQL 연결 URL 생성
     db_url = f"mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
-
     # 연결 가져오기
-    conn = get_connection()
+    engine = create_engine(db_url, connect_args=ssl_args)
+    conn = engine.connect()
 
     #
     # db_url = "mysql://username:password@hostname:port/database"
