@@ -43,7 +43,7 @@ else:
         "ssl_verify_identity": True,
     }
     # MySQL 연결 URL 생성
-    db_url = f"mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    db_url = f"mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}?ssl_verify_cert=false"
 
     # 연결 가져오기
     engine = create_engine(db_url, connect_args=ssl_args)
