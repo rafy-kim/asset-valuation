@@ -100,8 +100,8 @@ def get_apt_data(apt_name):
 
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
-    except pymysql.Error as e:
-        print("MySQL Error:", e)
+    except:
+        print("MySQL Error:")
         return '', 0, [], [], []
 
     finally:
@@ -129,8 +129,8 @@ def get_apt_list():
 
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)
 
-    except pymysql.Error as e:
-        print("MySQL Error:", e)
+    except:
+        print("MySQL Error:")
         return []
 
     finally:
