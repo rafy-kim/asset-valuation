@@ -39,9 +39,9 @@ def get_apt_data(apt_name):
         res = cur.fetchone()
         ####
         PY = res['PY']
-        price_trend = json.loads(res['price_trend'])
-        start_year = int(min(price_trend.keys()))
-        end_year = int(max(price_trend.keys())) + 1
+        # price_trend = json.loads(res['price_trend'])
+        # start_year = int(min(price_trend.keys()))
+        # end_year = int(max(price_trend.keys())) + 1
         ####
 
         # 1은 매매, 2는 전세, 3은 월세
@@ -49,43 +49,44 @@ def get_apt_data(apt_name):
         sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
         cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
         res = cur.fetchone()
-        print(res['name'], res['PY'], res['DEAL_TYPE'])
-
-        price_trend = json.loads(res['price_trend'])
-        years = range(start_year, end_year)
-        data = {}
-        for y in years:
-            YEAR = str(y)
-            for pt in price_trend[YEAR]:
-                data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
-                # print(pt['date'], pt['avg'])
-        dataset1 = dict(sorted(data.items()))
+        dataset1 = json.loads(res['price_trend'])
+        # print(res['name'], res['PY'], res['DEAL_TYPE'])
+        #
+        # price_trend = json.loads(res['price_trend'])
+        # years = range(start_year, end_year)
+        # data = {}
+        # for y in years:
+        #     YEAR = str(y)
+        #     for pt in price_trend[YEAR]:
+        #         data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
+        #         # print(pt['date'], pt['avg'])
+        # dataset1 = dict(sorted(data.items()))
 
         DEAL_TYPE = '2'
         sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
         cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
         res = cur.fetchone()
-        price_trend = json.loads(res['price_trend'])
-        data = {}
-        for y in years:
-            YEAR = str(y)
-            for pt in price_trend[YEAR]:
-                data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
-                # print(pt['date'], pt['avg'])
-        dataset2 = dict(sorted(data.items()))
+        dataset2 = json.loads(res['price_trend'])
+        # data = {}
+        # for y in years:
+        #     YEAR = str(y)
+        #     for pt in price_trend[YEAR]:
+        #         data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
+        #         # print(pt['date'], pt['avg'])
+        # dataset2 = dict(sorted(data.items()))
 
         DEAL_TYPE = '3'
         sql = "SELECT * FROM APTInfo WHERE name = %s AND PY = %s AND DEAL_TYPE = %s"
         cur.execute(sql, (apt_name, PY, DEAL_TYPE,))
         res = cur.fetchone()
-        price_trend = json.loads(res['price_trend'])
-        data = {}
-        for y in years:
-            YEAR = str(y)
-            for pt in price_trend[YEAR]:
-                data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
-                # print(pt['date'], pt['avg'])
-        dataset3 = dict(sorted(data.items()))
+        dataset3 = json.loads(res['price_trend'])
+        # data = {}
+        # for y in years:
+        #     YEAR = str(y)
+        #     for pt in price_trend[YEAR]:
+        #         data[pt['date']] = [round(pt['avg'], 2), pt['cnt']]
+        #         # print(pt['date'], pt['avg'])
+        # dataset3 = dict(sorted(data.items()))
         return apt_name, PY, dataset1, dataset2, dataset3
 
         # draw_plot(f"{apt_name} - {PY}평", dataset1, dataset2)

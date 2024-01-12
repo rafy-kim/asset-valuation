@@ -18,26 +18,52 @@ st.sidebar.header("아파트 비교")
 @st.cache_data
 def load_data(dataset1, dataset2, dataset3):
     # 데이터프레임 생성
-    df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', 'Data'])
-    df1[['매매가', '매매 거래량']] = pd.DataFrame(df1['Data'].tolist(), index=df1.index)
-    df1.drop('Data', axis=1, inplace=True)
-    df2 = pd.DataFrame(list(dataset2.items()), columns=['Date', 'Data'])
-    df2[['전세', '전세 거래량']] = pd.DataFrame(df2['Data'].tolist(), index=df2.index)
-    df2.drop('Data', axis=1, inplace=True)
-    df3 = pd.DataFrame(list(dataset3.items()), columns=['Date', 'Data'])
-    df3[['월세', '월세 거래량']] = pd.DataFrame(df3['Data'].tolist(), index=df3.index)
-    df3.drop('Data', axis=1, inplace=True)
-
-    # 데이터프레임을 날짜로 정렬
-    df1['Date'] = pd.to_datetime(df1['Date'], format='%Y%m')
+    df1 = pd.DataFrame(dataset1)
+    df2 = pd.DataFrame(dataset2)
+    df3 = pd.DataFrame(dataset3)
+    # 'date'를 datetime 형식으로 변환
+    df1['date'] = pd.to_datetime(df1['date'], format='%Y%m')
+    df1 = df1.rename(columns={
+        'date': 'Date',
+        'avg': '매매가',
+        'cnt': '매매 거래량'
+    })
     df1['Date'] = df1['Date'].dt.date
-    df2['Date'] = pd.to_datetime(df2['Date'], format='%Y%m')
+    df2['date'] = pd.to_datetime(df2['date'], format='%Y%m')
+    df2 = df2.rename(columns={
+        'date': 'Date',
+        'avg': '전세',
+        'cnt': '전세 거래량'
+    })
     df2['Date'] = df2['Date'].dt.date
-    df3['Date'] = pd.to_datetime(df3['Date'], format='%Y%m')
+    df3['date'] = pd.to_datetime(df3['date'], format='%Y%m')
+    df3 = df3.rename(columns={
+        'date': 'Date',
+        'avg': '월세',
+        'cnt': '월세 거래량'
+    })
     df3['Date'] = df3['Date'].dt.date
-    df1 = df1.sort_values(by='Date')
-    df2 = df2.sort_values(by='Date')
-    df3 = df3.sort_values(by='Date')
+
+    # df1 = pd.DataFrame(list(dataset1.items()), columns=['Date', 'Data'])
+    # df1[['매매가', '매매 거래량']] = pd.DataFrame(df1['Data'].tolist(), index=df1.index)
+    # df1.drop('Data', axis=1, inplace=True)
+    # df2 = pd.DataFrame(list(dataset2.items()), columns=['Date', 'Data'])
+    # df2[['전세', '전세 거래량']] = pd.DataFrame(df2['Data'].tolist(), index=df2.index)
+    # df2.drop('Data', axis=1, inplace=True)
+    # df3 = pd.DataFrame(list(dataset3.items()), columns=['Date', 'Data'])
+    # df3[['월세', '월세 거래량']] = pd.DataFrame(df3['Data'].tolist(), index=df3.index)
+    # df3.drop('Data', axis=1, inplace=True)
+    #
+    # # 데이터프레임을 날짜로 정렬
+    # df1['Date'] = pd.to_datetime(df1['Date'], format='%Y%m')
+    # df1['Date'] = df1['Date'].dt.date
+    # df2['Date'] = pd.to_datetime(df2['Date'], format='%Y%m')
+    # df2['Date'] = df2['Date'].dt.date
+    # df3['Date'] = pd.to_datetime(df3['Date'], format='%Y%m')
+    # df3['Date'] = df3['Date'].dt.date
+    # df1 = df1.sort_values(by='Date')
+    # df2 = df2.sort_values(by='Date')
+    # df3 = df3.sort_values(by='Date')
 
     # Date를 기준으로 병합
     # df3 = pd.merge(df1, df2, on='Date', how='inner')
