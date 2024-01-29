@@ -1,7 +1,11 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+from dotenv import load_dotenv
+import os
 from urllib.error import URLError
+import pymysql
+from pymysql.cursors import DictCursor
 
 from get_apt_data import get_apt_data, get_apt_list
 
@@ -13,7 +17,25 @@ st.sidebar.header("아파트 비교")
 #     """This demo shows how to use `st.write` to visualize Pandas DataFrames.
 # (Data courtesy of the [UN Data Explorer](http://data.un.org/Explorer.aspx).)"""
 # )
+ENV_LOAD = load_dotenv()
 
+if ENV_LOAD:
+    # Connect to the database
+    connection = pymysql.connect(
+      host=os.getenv("DATABASE_HOST"),
+      user=os.getenv("DATABASE_USERNAME"),
+      password=os.getenv("DATABASE_PASSWORD"),
+      database=os.getenv("DATABASE"),
+      ssl_verify_identity=True,
+    )
+else:
+    connection = pymysql.connect(
+        host=st.secrets["DATABASE_HOST"],
+        user=st.secrets["DATABASE_USERNAME"],
+        password=st.secrets["DATABASE_PASSWORD"],
+        database=st.secrets["DATABASE"],
+        ssl_verify_identity=True,
+    )
 
 @st.cache_data
 def load_data(dataset1, dataset2, dataset3):
@@ -83,8 +105,8 @@ def load_data(dataset1, dataset2, dataset3):
     return df4
 
 try:
-    apts = st.multiselect("Choose a APT", get_apt_list())
-    print(apts)
+    cur = connection.cursor()
+    apts = st.multiselect("Choose a APT", get_apt_list(cur))
     # apt = st.selectbox("Choose a APT", get_apt_list())
     if not apts:
         st.error("Please select a APT.")
@@ -92,7 +114,8 @@ try:
         data = []
         for apt in apts:
             # streamlit 앱 시작
-            apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
+            cur = connection.cursor(cursor=DictCursor)
+            apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(cur, apt)
             df = load_data(dataset1, dataset2, dataset3)
             data.append({apt_name: df})
 
@@ -114,8 +137,7 @@ try:
                 date_max = apt_df["Date"].max()
             else:
                 date_max = apt_df["Date"].max() if date_max < apt_df["Date"].max() else date_max
-        print(date_list)
-        print(date_min, date_max)
+
         start_date, end_date = st.sidebar.select_slider(
             '조회하고 싶은 기간을 선택하세요',
             options=date_list,
