@@ -6,29 +6,35 @@ import os
 from urllib.error import URLError
 import pymysql
 from pymysql.cursors import DictCursor
-
+from supabase import create_client, Client
 from get_apt_data import get_apt_data, get_apt_list
 
 # st.set_page_config(page_title="아파트", page_icon="🏠")
 ENV_LOAD = load_dotenv()
-
 if ENV_LOAD:
     # Connect to the database
-    connection = pymysql.connect(
-      host=os.getenv("DATABASE_HOST"),
-      user=os.getenv("DATABASE_USERNAME"),
-      password=os.getenv("DATABASE_PASSWORD"),
-      database=os.getenv("DATABASE"),
-      ssl_verify_identity=True,
-    )
+    # connection = pymysql.connect(
+    #   host=os.getenv("DATABASE_HOST"),
+    #   user=os.getenv("DATABASE_USERNAME"),
+    #   password=os.getenv("DATABASE_PASSWORD"),
+    #   database=os.getenv("DATABASE"),
+    #   ssl_verify_identity=True,
+    # )
+    url: str = os.environ.get("SUPABASE_URL")
+    key: str = os.environ.get("SUPABASE_KEY")
+    supabase: Client = create_client(url, key)
+
 else:
-    connection = pymysql.connect(
-        host=st.secrets["DATABASE_HOST"],
-        user=st.secrets["DATABASE_USERNAME"],
-        password=st.secrets["DATABASE_PASSWORD"],
-        database=st.secrets["DATABASE"],
-        ssl_verify_identity=True,
-    )
+    # connection = pymysql.connect(
+    #     host=st.secrets["DATABASE_HOST"],
+    #     user=st.secrets["DATABASE_USERNAME"],
+    #     password=st.secrets["DATABASE_PASSWORD"],
+    #     database=st.secrets["DATABASE"],
+    #     ssl_verify_identity=True,
+    # )
+    url: str = st.secrets["SUPABASE_URL"]
+    key: str = st.secrets["SUPABASE_KEY"]
+    supabase: Client = create_client(url, key)
 
 st.markdown("# 아파트")
 st.sidebar.header("아파트")
@@ -91,14 +97,16 @@ def load_data(dataset1, dataset2):
     return df3
 
 try:
-    cur = connection.cursor()
-    apt = st.selectbox("Choose a APT", get_apt_list(cur))
+    # cur = connection.cursor()
+    # apt = st.selectbox("Choose a APT", get_apt_list(cur))
+    apt = st.selectbox("Choose a APT", get_apt_list())
     if not apt:
         st.error("Please select a APT.")
     else:
         # streamlit 앱 시작
-        cur = connection.cursor(cursor=DictCursor)
-        apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(cur, apt)
+        # cur = connection.cursor(cursor=DictCursor)
+        # apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(cur, apt)
+        apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
         df = load_data(dataset1, dataset3)
 
         start_date, end_date = st.sidebar.select_slider(
