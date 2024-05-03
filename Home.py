@@ -1,32 +1,60 @@
 import streamlit as st
+from dotenv import load_dotenv
+import os
+import pandas as pd
+from supabase import create_client, Client
+from get_apt_data import get_apt_data, get_apt_list
+ENV_LOAD = load_dotenv()
+if ENV_LOAD:
+    url: str = os.environ.get("SUPABASE_URL")
+    key: str = os.environ.get("SUPABASE_KEY")
+    supabase: Client = create_client(url, key)
+
+else:
+    url: str = st.secrets["SUPABASE_URL"]
+    key: str = st.secrets["SUPABASE_KEY"]
+    supabase: Client = create_client(url, key)
 
 st.set_page_config(
     page_title="Home",
     page_icon="📊",
 )
 
-st.write("# 매크로 지표들 (예정)")
+st.write("# 아파트 PER ")
+# st.markdown("# 아파트 PER LIST")
+# st.sidebar.header("주요 아파트들의 최근 PER")
 
-st.sidebar.success("메뉴를 골라주세요")
-
+# st.sidebar.success("메뉴를 골라주세요")
 st.markdown(
     """
-    ### 경기
-    - (미국) 장단기 금리차
-    - (국내) 경상수지 
-    
-    ### 주식
-    - 미국 - 버핏 지수
-    - 한국 - 버핏 지수
-    - Fear and Greed Index
-        
-    ### 부동산
-    - PIR
-    - PER 
-    
-    ### 암호화폐
-    - Fear and Greed Index
-    - 김치 프리미엄 
-    
-"""
+주요 아파트들의 최근 PER 값을 기준으로 낮은 순으로 표시합니다.
+    """
 )
+
+response = supabase.table('APTLastPER').select('*').execute()
+print(response)
+
+df = pd.DataFrame(response.data)
+
+# df['updated'] = pd.to_datetime(df['updated'], format='%Y-%m-%dT%H:%M:%S.%f%z').dt.strftime('%Y-%m-%d')
+df['updated'] = pd.to_datetime(df['updated'], format='ISO8601').dt.strftime('%Y-%m-%d')
+df = df.drop(columns='id')
+df = df.drop(columns='apt_id')
+
+new_order = ['last_PER', 'apt_name', 'apt_PY', 'last_avg_price', 'last_avg_rent', 'updated']
+df = df[new_order]
+
+df = df.rename(columns={
+    'last_PER': '최근 PER',
+    'apt_name': '아파트',
+    'apt_PY': '평형',
+    'last_avg_price': '매매가',
+    'last_avg_rent': '월세',
+    'updated': '수정일',
+})
+
+# df['updated_date'] = pd.to_datetime(df['updated']).dt.date
+df = df.set_index('최근 PER').sort_index()
+
+st.dataframe(df, use_container_width=True)
+

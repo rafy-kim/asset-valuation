@@ -108,6 +108,7 @@ try:
         # apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(cur, apt)
         apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
         df = load_data(dataset1, dataset3)
+        print(df)
 
         start_date, end_date = st.sidebar.select_slider(
             '조회하고 싶은 기간을 선택하세요',

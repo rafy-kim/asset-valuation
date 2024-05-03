@@ -117,7 +117,6 @@ def get_apt_list():
     # sql_result = cur.fetchall()
     data = supabase.table('APTInfo').select('name').execute().data
     cleaned_list = sorted({d['name'] for d in data})
-    print(cleaned_list)
     # cleaned_list = [item[0] for item in sql_result]
     # print(cleaned_list)
     return cleaned_list
