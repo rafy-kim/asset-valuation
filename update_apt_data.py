@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-import requests
+
 from dotenv import load_dotenv
 import os
 import MySQLdb
@@ -17,10 +17,26 @@ key: str = os.environ.get("SUPABASE_KEY")
 supabase: Client = create_client(url, key)
 
 
+# # Connect to the database
+# connection = MySQLdb.connect(
+#   host=os.getenv("DATABASE_HOST"),
+#   user=os.getenv("DATABASE_USERNAME"),
+#   passwd=os.getenv("DATABASE_PASSWORD"),
+#   db=os.getenv("DATABASE"),
+#   autocommit=True,
+#   # ssl_mode="VERIFY_IDENTITY",
+# )
+
 try:
     # Create a cursor to interact with the database
-    response = supabase.table('APTInfo').select('name, PY, r_id, description', count='exact').eq('status', 1).execute()
-    for r in response.data[:5]:
+    # cur = connection.cursor(DictCursor)
+    # sql = "SELECT DISTINCT name, PY, seq, description FROM APTInfo WHERE status = 1"
+    # cur.execute(sql)
+    # sql_result = cur.fetchall()
+    response = supabase.table('APTInfo').select('name, PY, seq, description', count='exact').eq('status', 1).execute()
+    print(response)
+
+    for r in response.data:
         ####
         apt_name = r['name']
         PY = r['PY']
@@ -28,33 +44,9 @@ try:
 
         apt_info = {
             'desc': r['description'],
-            'r_id': r['r_id'],
+            'seq': r['seq'],
             'name': r['name'],
         }
-
-        # TODO: 주력 평형 정보 업데이트
-
-        url = f"https://api-m.richgo.ai/api/data/danji/onepage?danjiId={r['r_id']}"
-        headers = {
-            'Referer': 'https://m.richgo.ai',
-            'Content-Type': 'application/json; charset=utf-8'  # 추가된 부분: JSON 형식임을 명시
-        }
-        r = requests.get(url, headers=headers)
-
-        if r.status_code != 200:  # 상태 코드가 200일 때만 JSON을 파싱
-            print(f"Error: {r.status_code}")
-            break
-
-        data = r.json()['result']['pyeongList']
-        for d in data:
-            print(d['pyeongType'])
-            print(d['households'])
-
-        break
-
-
-
-
 
         # 1은 매매, 2는 전세, 3은 월세
         deal_types = range(1, 4)
@@ -75,7 +67,7 @@ try:
 
             # 오늘 날짜
             today = datetime.today()
-            # TODO: 오늘 날짜를 고려해서 최근 6개월치만 업데이트하기
+            # TODO: 오늘 날짜를 고려해서 최근 3개월치만 업데이트하기
             # 3개월 전 날짜
             prev_date = today - timedelta(days=180)
             str_date = prev_date.strftime("%Y%m")
@@ -104,9 +96,8 @@ try:
             # connection.commit()
 
             # TODO: 주석 해제 필요
-            # response = supabase.table('APTInfo').update({'price_trend': json.dumps(price_trend)}).eq('id', res['id']).execute()
-            # print("업데이트 완료!!")
-
+            response = supabase.table('APTInfo').update({'price_trend': json.dumps(price_trend)}).eq('id', res['id']).execute()
+            print("업데이트 완료!!")
 
 
 except MySQLdb.Error as e:

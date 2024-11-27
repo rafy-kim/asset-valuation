@@ -4,8 +4,6 @@ import altair as alt
 from dotenv import load_dotenv
 import os
 from urllib.error import URLError
-import pymysql
-from pymysql.cursors import DictCursor
 from supabase import create_client, Client
 from get_apt_data import get_apt_data, get_apt_list
 
@@ -97,25 +95,104 @@ def load_data(dataset1, dataset2):
     return df3
 
 try:
-    # cur = connection.cursor()
-    # apt = st.selectbox("Choose a APT", get_apt_list(cur))
-    apt = st.selectbox("Choose a APT", get_apt_list())
+    # 전체 아파트 목록 가져오기
+    apt_list = get_apt_list()
+    
+    # 사이드바에 필터 추가
+    st.sidebar.subheader("필터")
+    
+    # 지역 목록 가져오기
+    addresses = sorted({apt.get('address', '') for apt in apt_list if apt.get('address')})
+    
+    # 기본 선택될 지역들
+    default_addresses = [
+        # '서울 강남구',
+        # '서울 서초구',
+        '서울 송파구',
+        # '서울 성동구'
+    ]
+    # 실제 존재하는 지역만 기본값으로 설정
+    default_selections = [addr for addr in default_addresses if addr in addresses]
+    
+    # 지역 선택 (다중 선택 가능)
+    selected_addresses = st.sidebar.multiselect(
+        "지역",
+        options=addresses,
+        default=default_selections,  # 기본값을 4개 지역으로 설정
+        help="지역을 선택하세요. 여러 지역을 선택할 수 있습니다."
+    )
+    
+    # 현재 년도 계산
+    current_year = 2024
+    
+    # 준공년도 범위 계산 (경과 연수로 변환)
+    years = sorted({apt['year'] for apt in apt_list if apt.get('year')})
+    years = [y//100 for y in years if y]  # 년도만 추출 (예: 202312 -> 2023)
+    
+    if years:
+        min_elapsed = 0  # 최소 경과 연수 (신축)
+        max_elapsed = current_year - min(years)  # 최대 경과 연수
+    else:
+        min_elapsed = 0
+        max_elapsed = 50
+    
+    # 경과 연수 선택 슬라이더
+    elapsed_years = st.sidebar.slider(
+        "준공 경과 연수",
+        min_value=min_elapsed,
+        max_value=max_elapsed,
+        value=(0, 10),  # 기본값 0~10년
+        step=1,
+        format="%d년"
+    )
+    
+    # 선택된 경과 연수를 실제 연도로 변환
+    selected_max_year = current_year - elapsed_years[0]
+    selected_min_year = current_year - elapsed_years[1]
+    
+    # 평수 범위 계산
+    PYs = sorted({float(apt['PY']) for apt in apt_list if apt.get('PY')})
+    min_PY = min(PYs) - 1 if PYs else 0
+    max_PY = max(PYs) + 1 if PYs else 100
+    
+    # 평수 선택 슬라이더
+    PY_range = st.sidebar.slider(
+        "평수",
+        min_value=float(min_PY),
+        max_value=float(max_PY),
+        value=(float(min_PY), float(max_PY)),
+        format="%.1f평"
+    )
+    
+    # 필터링된 아파트 목록 생성 (지역, 경과 연수, 평수 기준으로 필터링)
+    filtered_apts = [
+        apt for apt in apt_list 
+        if (apt.get('address', '') in selected_addresses) and  # 지역 필터
+        (selected_min_year*100 <= apt.get('year', 0) <= selected_max_year*100) and  # 경과 연수 필터
+        (PY_range[0] <= float(apt.get('PY', 0)) <= PY_range[1])  # 평수 필터
+    ]
+    
+    # 필터링된 아파트 이름 목록
+    apt_names = [apt['name'] for apt in filtered_apts]
+    
+    # 아파트 선택
+    apt = st.selectbox("Choose a APT", apt_names)
+    
     if not apt:
         st.error("Please select a APT.")
     else:
-        # streamlit 앱 시작
-        # cur = connection.cursor(cursor=DictCursor)
-        # apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(cur, apt)
+        # 선택된 아파트 데이터 로드
         apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
         df = load_data(dataset1, dataset3)
-        print(df)
-
+        
+        # 기간 선택 슬라이더 (아파트 선택 후 표시)
         start_date, end_date = st.sidebar.select_slider(
             '조회하고 싶은 기간을 선택하세요',
             options=df["Date"].tolist(),
-            value=(df["Date"].min(), df["Date"].max()))
+            value=(df["Date"].min(), df["Date"].max())
+        )
         df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
-
+        
         # 차트 그리기
         # Line Chart
         st.write(f"### {apt_name} - {apt_PY}평")

@@ -112,20 +112,19 @@ def load_data(dataset1, dataset2, dataset3):
     return df4
 
 try:
-    # cur = connection.cursor()
-    apts = st.multiselect("Choose a APT", get_apt_list())
-    # apt = st.selectbox("Choose a APT", get_apt_list())
+    apt_list = get_apt_list()
+    apt_names = [apt['name'] for apt in apt_list]
+    apts = st.multiselect("Choose a APT", apt_names)
+    
     if not apts:
         st.error("Please select a APT.")
     else:
         data = []
         for apt in apts:
-            # streamlit 앱 시작
-            # cur = connection.cursor(cursor=DictCursor)
             apt_name, apt_PY, dataset1, dataset2, dataset3 = get_apt_data(apt)
             df = load_data(dataset1, dataset2, dataset3)
             data.append({apt_name: df})
-
+        
         date_list = []
         date_min, date_max = None, None
         for d in data:
@@ -214,7 +213,7 @@ try:
             apt_name = list(d.keys())[0]
             apt_df = list(d.values())[0]
             apt_df = apt_df[(apt_df['Date'] >= start_date) & (apt_df['Date'] <= end_date)]
-            apt_df['단지명'] = apt_name  # 각 아파트에 대한 데이터프레임에 단지명 추가
+            apt_df['단지명'] = apt_name  # 각 아파��에 대한 데이터프레임에 단지명 추가
             line_chart = alt.Chart(apt_df).mark_line(point=True).encode(
                 x=alt.X("Date:T", title="Date"),
                 y=alt.Y("PER:Q", title="PER"),
